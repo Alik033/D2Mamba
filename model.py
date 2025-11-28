@@ -1,17 +1,3 @@
-"""
-model_ablations.py: Implements the AQUA-Mamba-FD architecture with
-pluggable scan strategies for ablation studies.
-
-This version includes visualization capabilities for the A* scan strategy,
-allowing for the output and saving of saliency maps and computed paths.
-
-Changelog:
-- Added a `save_visualizations` utility function using matplotlib.
-- The `AStarScanStrategy` now returns saliency maps and paths.
-- The main `D2MambaAblation` model returns this visualization data
-  when in `eval()` mode and using the 'astar' strategy.
-- The main test block demonstrates how to generate and save these visualizations.
-"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -24,11 +10,6 @@ import matplotlib.pyplot as plt
 
 # --- 1. Standalone Mamba Block Implementation (Unchanged) ---
 class MambaBlock(nn.Module):
-    """
-    An optimized Mamba block implementation.
-    This version replaces the naive for-loop scan with a mathematically
-    equivalent parallel scan algorithm for significant speedup.
-    """
     def __init__(self, d_model, d_state=16, d_conv=4, expand=2):
         super().__init__()
         self.d_model = d_model
@@ -481,7 +462,6 @@ class CrossScanStrategy(ScanStrategyBase):
         mamba_corrections = mamba_out.transpose(1, 2).reshape(B, C, H, W)
         return mamba_corrections, path_len, None
 
-# --- 5. Main Ablation Model ---
 class D2Mamba(nn.Module):
     """
     The main model integrating all components with a pluggable scan strategy.
@@ -517,11 +497,6 @@ class D2Mamba(nn.Module):
         )
 
     def forward(self, x):
-        """
-        Main forward pass. Return signature depends on mode and strategy.
-        - eval mode: returns (image, path_len, viz_data)
-        - train mode: returns (image, path_len) - viz_data is heavy for training
-        """
         features = self.encoder(x)
         
         mamba_corrections, path_len, visualizations = self.scan_strategy(features)
