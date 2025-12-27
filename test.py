@@ -111,7 +111,7 @@ device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
 ch = 3
 
 network = D2Mamba(base_dim=24, num_paths=4, mamba_layers=4, scan_strategy_name='astar')
-checkpoint = torch.load(os.path.join(CHECKPOINTS_DIR,"netG_62.pt"),weights_only=False)
+checkpoint = torch.load(os.path.join(CHECKPOINTS_DIR,"netG_LSUI.pt"),weights_only=False)
 network.load_state_dict(checkpoint['model_state_dict'], strict=False)
 network.eval()
 network.to(device)
